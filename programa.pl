@@ -137,3 +137,45 @@ lugarProhibido(seccionRestringidaDeLaBiblioteca, 10).
 lugarProhibido(tercerPiso, 75).
 
 %Item B
+
+esRecurrente(Accion):-
+    hizo(Mago,Accion),
+    hizo(OtroMago,Accion),
+    Mago \= OtroMago.
+
+%Punto 2
+
+puntajeDeLaCasa(Casa,PuntajeTotal):-
+    casa(Casa),
+    findall(Puntaje,(esDe(Mago,Casa),puntosQueObtuvo(Mago,_,Puntaje)),Puntajes),
+    sum_list(Puntajes, PuntajeTotal).
+    
+puntosQueObtuvo(Mago, Accion, Puntaje):-
+    hizo(Mago,Accion),
+    puntajeQueGenera(Accion,Puntaje).
+
+%Punto 3
+esLaGanadora(Casa):-
+    puntajeDeLaCasa(Casa,PuntajeGanador),
+    forall(
+        (OtraCasa \= Casa, puntajeDeLaCasa(OtraCasa,OtroPuntaje)),
+        PuntajeGanador>OtroPuntaje).
+
+%variante con Negacion
+casaGanadora2(Casa):-
+    puntajeDeLaCasa(Casa, PuntajeGanador),
+    not((puntajeDeLaCasa(_, OtroPuntaje), OtroPuntaje > PuntajeGanador)).
+
+%Punto 4
+%responderPregunta(Pregunta,Dificultad,Profesor)
+
+hizo(hermione,responderPregunta(dondeEstaBezoar,20,snape)).
+hizo(hermione,responderPregunta(comoLevitarPluma,25,flitwick)).
+
+puntajeQueGenera(responderPregunta(_,Dificultad,snape),Puntaje):-
+    Puntaje is Dificultad // 2.
+puntajeQueGenera(responderPregunta(_,Dificultad,Profesor),Dificultad):-
+    Profesor \= snape.
+
+%la froma en que modelamos las acciones nos permite solo tener que agregar
+%estos predicados sin tener la necesidad de modificar ningun otro porque son polimorficos
